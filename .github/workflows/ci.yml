@@ -36,9 +36,86 @@ jobs:
         run: |
           docker compose up -d
 
-      - name: Wait for Services
+#      - name: Wait for Services
+#        run: |
+#          sleep 60
+
+      - name: Wait for Services to Become Ready
         run: |
-          sleep 60
+
+          echo "Waiting for services..."
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8001/docs; then
+              echo "Ingestion service ready"
+              break
+            fi
+
+            echo "Waiting for ingestion service..."
+
+            sleep 10
+          done
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8002/docs; then
+              echo "Normalization service ready"
+              break
+            fi
+
+            echo "Waiting for normalization service..."
+
+            sleep 10
+          done
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8003/docs; then
+              echo "Enrichment service ready"
+              break
+            fi
+
+            echo "Waiting for enrichment service..."
+
+            sleep 10
+          done
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8004/docs; then
+              echo "Automation service ready"
+              break
+            fi
+
+            echo "Waiting for automation service..."
+
+            sleep 10
+          done
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8005/docs; then
+              echo "Correlation service ready"
+              break
+            fi
+
+            echo "Waiting for correlation service..."
+
+            sleep 10
+          done
+
+          for i in {1..30}; do
+
+            if curl -f http://localhost:8006/docs; then
+              echo "Analytics service ready"
+              break
+            fi
+
+            echo "Waiting for analytics service..."
+
+            sleep 10
+          done
 
       - name: Verify Ingestion Service
         run: |
@@ -63,3 +140,8 @@ jobs:
       - name: Verify Analytics Service
         run: |
           curl http://localhost:8006/docs
+
+      - name: Print Container Logs on Failure
+        if: failure()
+        run: |
+          docker compose logs
