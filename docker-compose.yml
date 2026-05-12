@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: ctip-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  postgres:
+    image: postgres:16
+    container_name: ctip-postgres
+    environment:
+      POSTGRES_DB: ctip_analytics
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4342
+    ports:
+      - "5433:5432"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+
+      KAFKA_ZOOKEEPER_CONNECT:
+        zookeeper:2181
+
+      KAFKA_ADVERTISED_LISTENERS:
+        PLAINTEXT://kafka:9092
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  ingestion-service:
+    build: ./ingestion-service
+    container_name: ingestion-service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mongodb
+
+  normalization-service:
+    build: ./normalization-service
+    container_name: normalization-service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mongodb
+
+  enrichment-service:
+    build: ./enrichment-service
+    container_name: enrichment-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - mongodb
+
+  automation-service:
+    build: ./automation-service
+    container_name: automation-service
+    ports:
+      - "8004:8000"
+    depends_on:
+      - mongodb
+
+  correlation-service:
+    build: ./correlation-service
+    container_name: correlation-service
+    ports:
+      - "8005:8000"
+    depends_on:
+      - mongodb
+
+  analytics-service:
+    build: ./analytics-service
+    container_name: analytics-service
+    ports:
+      - "8006:8000"
+    depends_on:
+      - postgres
+      - mongodb
+
+volumes:
+  mongo_data:

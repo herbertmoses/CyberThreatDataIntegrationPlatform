@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Mac
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# Mongo
+data/db/
+
+# Docker
+*.pid
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage

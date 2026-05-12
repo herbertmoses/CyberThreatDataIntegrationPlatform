@@ -1,0 +1,65 @@
+name: CTIP CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Docker Compose
+        run: |
+          docker compose version
+
+      - name: Build Containers
+        run: |
+          docker compose build
+
+      - name: Start Containers
+        run: |
+          docker compose up -d
+
+      - name: Wait for Services
+        run: |
+          sleep 60
+
+      - name: Verify Ingestion Service
+        run: |
+          curl http://localhost:8001/docs
+
+      - name: Verify Normalization Service
+        run: |
+          curl http://localhost:8002/docs
+
+      - name: Verify Enrichment Service
+        run: |
+          curl http://localhost:8003/docs
+
+      - name: Verify Automation Service
+        run: |
+          curl http://localhost:8004/docs
+
+      - name: Verify Correlation Service
+        run: |
+          curl http://localhost:8005/docs
+
+      - name: Verify Analytics Service
+        run: |
+          curl http://localhost:8006/docs
